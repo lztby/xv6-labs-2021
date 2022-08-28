@@ -659,3 +659,17 @@ procdump(void)
     printf("\n");
   }
 }
+
+// count process unused .
+int
+procnum(void)
+{
+  struct proc *p;
+  int cnt = 0;
+  for(p = proc; p < &proc[NPROC]; p++){
+    if(p->state >= UNUSED && p->state <= ZOMBIE && p->state != UNUSED) {
+      cnt++;
+    }
+  }
+  return cnt;
+}

@@ -83,7 +83,8 @@ testcall() {
     printf("FAIL: sysinfo failed\n");
     exit(1);
   }
-
+  printf("nfreemem %d \n", info.freemem);
+  printf("nprocess %d \n", info.nproc);
   if (sysinfo((struct sysinfo *) 0xeaeb0b5b00002f5e) !=  0xffffffffffffffff) {
     printf("FAIL: sysinfo succeeded with bad argument\n");
     exit(1);
