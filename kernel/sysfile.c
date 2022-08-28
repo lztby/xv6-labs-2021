@@ -494,7 +494,7 @@ sys_sysinfo(void)
   uint64 st; // user pointer to struct stat
   info.nproc = procnum();
   info.freemem = freememcnt();
-  printf("sys_sysinfo is called pro_cnt %d info->freemem %d\n", info.nproc, info.freemem);
+  // printf("sys_sysinfo is called pro_cnt %d info->freemem %d\n", info.nproc, info.freemem);
   if(argaddr(0, &st) < 0)
     return -1;
   struct proc *p = myproc();
