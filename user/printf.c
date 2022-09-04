@@ -84,7 +84,9 @@ vprintf(int fd, const char *fmt, va_list ap)
         putc(fd, va_arg(ap, uint));
       } else if(c == '%'){
         putc(fd, c);
-      } else {
+      } else if (c == 'u') {
+        printint(fd, va_arg(ap, int), 10, 0);
+      }else {
         // Unknown % sequence.  Print it to draw attention.
         putc(fd, '%');
         putc(fd, c);

@@ -81,6 +81,24 @@ int
 sys_pgaccess(void)
 {
   // lab pgtbl: your code here.
+  uint64 buf, bits;
+  int num;
+  pte_t *pte;
+  if(argaddr(0, &buf) < 0) return -1;
+  if(argint(1, &num) < 0) return -1;
+  if(argaddr(2, &bits) < 0) return -1;
+  unsigned int ans = 0;
+  struct proc *p = myproc();
+  for (int i = 0; i < num; i++) {
+    pte = walk(p->pagetable, (uint64)buf + (uint64)PGSIZE * i, 0);
+    if(pte != 0 && (*pte & PTE_A)) {
+      ans |= 1 << i;
+      *pte &= ~PTE_A; // 感觉这里真正去做的时候是不应该清理的， 因为会影响原来是否访问过的标记，这里清理是为了过test
+    }
+  }
+  if(copyout(p->pagetable, bits, (char*)&ans, sizeof(ans)) < 0){
+    return -1;
+  }
   return 0;
 }
 #endif

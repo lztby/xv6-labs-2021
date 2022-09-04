@@ -102,6 +102,9 @@ printf(char *fmt, ...)
     case '%':
       consputc('%');
       break;
+    case 'u':
+      printint(va_arg(ap, int), 10, 0);
+      break;
     default:
       // Print unknown % sequence to draw attention.
       consputc('%');
