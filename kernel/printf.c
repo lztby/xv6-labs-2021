@@ -132,3 +132,17 @@ printfinit(void)
   initlock(&pr.lock, "pr");
   pr.locking = 1;
 }
+
+void 
+backtrace(void)
+{
+  printf("backtrace:\n");
+  uint64 fp = r_fp(); // 这里的fp已经是当前stack frame的栈顶值
+  uint64 upaddr = PGROUNDUP(fp);
+  uint64 downaddr = PGROUNDDOWN(fp);
+  while (fp < upaddr) {
+    uint64 retaddr = fp - 8;
+    printf("%p\n", *(uint64 *)retaddr);
+    fp = *(uint64 *)(fp - 16);
+  }
+}

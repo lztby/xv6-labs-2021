@@ -69,6 +69,7 @@ sys_sleep(void)
     }
     sleep(&ticks, &tickslock);
   }
+  backtrace();
   release(&tickslock);
   return 0;
 }
@@ -94,4 +95,35 @@ sys_uptime(void)
   xticks = ticks;
   release(&tickslock);
   return xticks;
+}
+
+uint64
+sys_sigalarm(void)
+{
+  printf("hell sys_sigalarm\n");
+  int nticks;
+  uint64 handler;
+  if(argint(0, &nticks) < 0)
+    return -1;
+  if(argaddr(1, &handler) < 0)
+    return -1;
+  myproc()->nticks = nticks;
+  myproc()->alarm_handle = handler;
+  myproc()->has_ticks = 0;
+  myproc()->alarm_trapframe = 0;
+  return 0;
+}
+
+uint64
+sys_sigreturn(void)
+{
+  printf("hell sys_sigreturn\n");
+  if(myproc()->alarm_trapframe) {
+    memcpy(myproc()->trapframe, myproc()->alarm_trapframe, sizeof(struct trapframe));
+    kfree(myproc()->alarm_trapframe);
+    myproc()->alarm_trapframe = 0;
+  }
+  // myproc()->alarm_handle = 0; // 这里也不能清0 清0可以通过测试是因为handler的值本来就是0 碰巧而已
+  // myproc()->nticks = 0; // 这里不能关 因为关了后面就无法进中断了
+  return 0;
 }

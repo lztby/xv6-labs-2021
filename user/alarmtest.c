@@ -30,6 +30,16 @@ main(int argc, char *argv[])
 volatile static int count;
 
 void
+aaaa()
+{
+  count = count + 1;
+  printf("alarm1!\n");
+  sigreturn();
+}
+
+
+// 调用一次 sigalarm 会调用很多次sigreturn（只要进程一直存在，就会定时 n ticks的跑）
+void
 periodic()
 {
   count = count + 1;
@@ -84,6 +94,30 @@ test1()
   printf("test1 start\n");
   count = 0;
   j = 0;
+  sigalarm(2, aaaa);
+  for(i = 0; i < 500000000; i++){
+    if(count >= 10)
+      break;
+    foo(i, &j);
+  }
+  if(count < 10){
+    printf("\ntest1 failed: too few calls to the handler count %d\n", count);
+  } else if(i != j){
+    // the loop should have called foo() i times, and foo() should
+    // have incremented j once per call, so j should equal i.
+    // once possible source of errors is that the handler may
+    // return somewhere other than where the timer interrupt
+    // occurred; another is that that registers may not be
+    // restored correctly, causing i or j or the address ofj
+    // to get an incorrect value.
+    printf("\ntest1 failed: foo() executed fewer times than it was called\n");
+  } else {
+    printf("test1 passed\n");
+  }
+
+   printf("test1 start\n");
+  count = 0;
+  j = 0;
   sigalarm(2, periodic);
   for(i = 0; i < 500000000; i++){
     if(count >= 10)
@@ -91,7 +125,7 @@ test1()
     foo(i, &j);
   }
   if(count < 10){
-    printf("\ntest1 failed: too few calls to the handler\n");
+    printf("\ntest1 failed: too few calls to the handler count %d\n", count);
   } else if(i != j){
     // the loop should have called foo() i times, and foo() should
     // have incremented j once per call, so j should equal i.
